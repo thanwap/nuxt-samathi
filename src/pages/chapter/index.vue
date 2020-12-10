@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>อาจารย์ - รายการ</h1>
+    <h1>บท - รายการ</h1>
     <v-card>
       <div class="d-flex flex-row flex-nowrap justify-space-between">
         <div class="ma-2">
@@ -21,12 +21,9 @@
       <v-data-table
         :loading="loading"
         :headers="headers"
-        :items="teachers"
+        :items="chapters"
         :search="search"
       >
-        <template v-slot:[`item.imageUrl`]="{ item }">
-          <v-img max-width="100" :src="item.imageUrl"></v-img>
-        </template>
         <template v-slot:[`item.id`]="{ item }">
           <v-btn
             @click="goToEdit(item.id)"
@@ -51,9 +48,7 @@
     </v-card>
     <v-dialog v-model="dialogDelete" max-width="500px">
       <v-card>
-        <v-card-title class="headline"
-          >คุณแน่ใจหรือไม่ที่จะลบอาจารย์ ?</v-card-title
-        >
+        <v-card-title class="headline">คุณแน่ใจหรือไม่ที่จะลบบท ?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDelete">ยกเลิก</v-btn>
@@ -70,12 +65,12 @@ export default {
   data() {
     return {
       headers: [
-        { text: 'ชื่อ-นามสกุล', value: 'fullName', filterable: true },
-        { text: 'เบอร์โทรศัพท์', value: 'phoneNumber' },
-        { text: 'รูป', value: 'imageUrl' },
+        { text: 'บท', value: 'chapterNumber', filterable: true },
+        { text: 'เล่ม', value: 'bookNumber' },
+        { text: 'ชื่อ', value: 'name' },
         { text: 'action', value: 'id' },
       ],
-      teachers: [],
+      chapters: [],
       search: '',
       loading: false,
       dialogDelete: false,
@@ -84,37 +79,29 @@ export default {
   },
   methods: {
     async loadItems() {
-      console.log('load Teachers')
-      this.teachers = []
+      this.chapters = []
       this.loading = true
-      const itemRef = this.$fire.database.ref('teacher')
+      const itemRef = this.$fire.database.ref('chapter')
       const itemSnapshot = await itemRef.once('value')
-      const teachers = itemSnapshot.val()
-      for (const key in teachers) {
-        this.teachers.push({
+      const items = itemSnapshot.val()
+      for (const key in items) {
+        this.chapters.push({
           id: key,
-          name: teachers[key].name,
-          lastName: teachers[key].lastName,
-          fullName: teachers[key].fullName
-            ? teachers[key].fullName
-            : `${teachers[key].prefix}${teachers[key].name} ${teachers[key].lastName}`,
-          phoneNumber: teachers[key].phoneNumber,
-          prefix: teachers[key].prefix,
-          imageUrl: teachers[key].imageUrl
-            ? teachers[key].imageUrl
-            : 'https://firebasestorage.googleapis.com/v0/b/nuxt-samathi/o/images%2Fteachers%2Fteacher-mock.jpg?alt=media&token=aaa06d90-baed-4ad0-9206-0b80aeaec856',
+          chapterNumber: items[key].chapterNumber,
+          name: items[key].name,
+          bookNumber: items[key].bookNumber,
         })
       }
       this.loading = false
     },
     goToAdd() {
       this.$router.push({
-        path: '/teacher/add',
+        path: '/chapter/add',
       })
     },
     goToEdit(id) {
       this.$router.push({
-        path: '/teacher/' + id,
+        path: '/chapter/' + id,
       })
     },
     deleteItem(id) {
@@ -122,7 +109,7 @@ export default {
       this.deleteId = id
     },
     async deleteConfirm() {
-      await this.$fire.database.ref('teacher/' + this.deleteId).remove()
+      await this.$fire.database.ref('chapter/' + this.deleteId).remove()
       this.deleteId = ''
       this.dialogDelete = false
       await this.loadItems()
@@ -131,7 +118,7 @@ export default {
       this.dialogDelete = false
     },
   },
-  async mounted() {
+  mounted() {
     this.loadItems()
   },
 }

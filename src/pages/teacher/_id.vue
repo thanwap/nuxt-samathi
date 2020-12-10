@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>อาจารย์ - แก้ไข้</h1>
     <teacher-form
       @submit="submit"
       v-if="teacher"

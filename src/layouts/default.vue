@@ -34,8 +34,16 @@ export default {
           to: '/',
         },
         {
+          title: 'บท',
+          to: '/chapter',
+        },
+        {
           title: 'อาจารย์',
           to: '/teacher',
+        },
+        {
+          title: 'ตารางสอน',
+          to: '/schedule',
         },
         {
           title: 'Inspire',

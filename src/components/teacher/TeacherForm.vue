@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form" v-model="valid" lazy-validation>
+  <v-form ref="form" lazy-validation>
     <v-text-field
       v-model="teacher.prefix"
       label="คำนำหน้า"
@@ -46,7 +46,6 @@ export default {
       type: Object,
       default() {
         return {
-          id: '',
           prefix: '',
           name: '',
           lastName: '',
@@ -59,7 +58,6 @@ export default {
   data() {
     return {
       file: '',
-      valid: true,
       prefixRules: [(v) => !!v || 'กรุณากรอก คำนำหน้า'],
       nameRules: [(v) => !!v || 'กรุณากรอก ชื่อ'],
       lastNameRules: [(v) => !!v || 'กรุณากรอก นามสกุล'],
@@ -84,7 +82,6 @@ export default {
     clear() {
       this.file = null
       this.$refs.form.reset()
-      this.dialog = false
     },
     submit() {
       if (!this.$refs.form.validate()) return

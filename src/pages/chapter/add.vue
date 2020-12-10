@@ -1,14 +1,14 @@
 <template>
   <div>
-    <h1>อาจารย์ - เพิ่ม</h1>
-    <teacher-form @submit="submit"></teacher-form>
+    <h1>บท - เพิ่ม</h1>
+    <chapter-form @submit="submit"></chapter-form>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
-        <v-card-title class="headline"> อาจารย์ </v-card-title>
+        <v-card-title class="headline"> บท </v-card-title>
         <v-card-text>อัพโหลดสำเร็จ</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="goToTeacherList">
+          <v-btn color="green darken-1" text @click="goToChapterList">
             ตกลง
           </v-btn>
         </v-card-actions>
@@ -21,10 +21,10 @@
 </template>
 
 <script>
-import TeacherForm from '../../components/teacher/TeacherForm'
+import ChapterForm from '../../components/chapter/ChapterForm'
 export default {
   components: {
-    'teacher-form': TeacherForm,
+    'chapter-form': ChapterForm,
   },
   data() {
     return {
@@ -38,21 +38,11 @@ export default {
     },
   },
   methods: {
-    async submit(teacher, fileImage) {
+    async submit(chapter) {
       this.loading = true
-      const teacherRef = this.$fire.database.ref('teacher').push()
+      const chapterRef = this.$fire.database.ref('chapter').push()
       try {
-        await teacherRef.set(teacher)
-
-        if (fileImage) {
-          const imageRef = this.$fire.storage
-            .ref()
-            .child(`images/teachers/${teacherRef.key}/${fileImage.name}`)
-          await imageRef.put(fileImage)
-          const imageUrl = await imageRef.getDownloadURL()
-          await teacherRef.set({ ...teacher, imageUrl: imageUrl })
-        }
-
+        await chapterRef.set(chapter)
         this.loading = false
         this.dialog = true
       } catch (e) {
@@ -60,9 +50,9 @@ export default {
         console.log(e)
       }
     },
-    goToTeacherList() {
+    goToChapterList() {
       this.$router.push({
-        path: '/teacher',
+        path: '/chapter',
       })
     },
   },
