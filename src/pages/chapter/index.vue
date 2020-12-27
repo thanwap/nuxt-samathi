@@ -86,6 +86,7 @@ export default {
         { text: 'เล่ม', value: 'bookNumber', width: 150 },
         { text: 'บทที่', value: 'chapterNumber', width: 150, filterable: true },
         { text: 'ชื่อ', value: 'name' },
+        { text: 'เวลา', value: 'time', width: 150 },
         { text: 'action', value: 'id', align: 'center', width: 200 },
       ],
       chapters: [],
@@ -140,16 +141,21 @@ export default {
         let workbook = XLSX.read(data, { type: 'array' })
         let first_sheet_name = workbook.SheetNames[0]
         let worksheet = workbook.Sheets[first_sheet_name]
+        const rows = Number(worksheet['!ref'].split(':')[1].substring(1))
         try {
-          for (const [key, value] of Object.entries(worksheet)) {
-            if (key[0] === '!') continue
+          for (let i = 1; i <= rows; i++) {
+            let name = worksheet['A' + i].v
+            let time = worksheet['B' + i] ? worksheet['B' + i].v : 0
+
             let chpater = {
-              chapterNumber: value.v.split(' ')[0],
-              bookNumber: isNaN(value.v.split(' ')[0][0])
+              chapterNumber: name.split(' ')[0],
+              bookNumber: isNaN(name.split(' ')[0][0])
                 ? '3'
-                : value.v.split(' ')[0][0],
-              name: value.v,
+                : name.split(' ')[0][0],
+              name: name,
+              time: time,
             }
+
             const oldChapter = this.chapters.find(
               (x) => x.chapterNumber === chpater.chapterNumber
             )

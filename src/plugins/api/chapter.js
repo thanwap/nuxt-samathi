@@ -12,6 +12,7 @@ export default {
             chapterNumber: items[key].chapterNumber,
             name: items[key].name,
             bookNumber: items[key].bookNumber,
+            time: items[key].time || 0,
           })
         }
         return result
@@ -26,6 +27,7 @@ export default {
           chapterNumber: chapter.chapterNumber,
           name: chapter.name,
           bookNumber: chapter.bookNumber,
+          time: chapter.time,
         })
       },
       async delete(id) {

@@ -19,6 +19,13 @@
         required
         :rules="nameRules"
       ></v-text-field>
+      <v-text-field
+        type="number"
+        v-model="chapter.time"
+        label="เวลา"
+        required
+        :rules="timeRules"
+      ></v-text-field>
 
       <v-btn color="primary" class="mr-4" @click="submit"> ตกลง </v-btn>
       <v-btn color="secondary" class="mr-4" @click="clear"> เคลียร์ </v-btn>
@@ -37,6 +44,7 @@ export default {
           chapterNumber: '',
           name: '',
           bookNumber: '',
+          time: 0,
         }
       },
     },
@@ -47,6 +55,7 @@ export default {
       chapterNumberRules: [(v) => !!v || 'กรุณากรอก บทที่'],
       nameRules: [(v) => !!v || 'กรุณากรอก ชื่อ'],
       bookNumberRules: [(v) => !!v || 'กรุณากรอก เลชที่เล่ม'],
+      timeRules: [(v) => !!v || 'กรุณากรอก เวลา'],
     }
   },
   methods: {
