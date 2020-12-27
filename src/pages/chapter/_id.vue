@@ -41,15 +41,10 @@ export default {
     },
   },
   methods: {
-    async submit(chapter, fileImage) {
+    async submit(chapter) {
       this.loading = true
-      const chapterRef = this.$fire.database.ref('chapter/' + this.id)
       try {
-        await chapterRef.update({
-          chapterNumber: chapter.chapterNumber,
-          name: chapter.name,
-          bookNumber: chapter.bookNumber,
-        })
+        await this.$services.chapterApi.update(this.id, chapter)
 
         this.loading = false
         this.dialog = true

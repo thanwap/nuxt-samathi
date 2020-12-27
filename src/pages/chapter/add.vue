@@ -40,9 +40,8 @@ export default {
   methods: {
     async submit(chapter) {
       this.loading = true
-      const chapterRef = this.$fire.database.ref('chapter').push()
       try {
-        await chapterRef.set(chapter)
+        await this.$services.chapterApi.add(chapter)
         this.loading = false
         this.dialog = true
       } catch (e) {

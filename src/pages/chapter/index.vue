@@ -100,16 +100,10 @@ export default {
     async loadItems() {
       this.chapters = []
       this.loading = true
-      const itemRef = this.$fire.database.ref('chapter')
-      const itemSnapshot = await itemRef.once('value')
-      const items = itemSnapshot.val()
-      for (const key in items) {
-        this.chapters.push({
-          id: key,
-          chapterNumber: items[key].chapterNumber,
-          name: items[key].name,
-          bookNumber: items[key].bookNumber,
-        })
+      try {
+        this.chapters = await this.$services.chapterApi.list()
+      } catch (e) {
+        console.log(e)
       }
       this.loading = false
     },
@@ -128,7 +122,7 @@ export default {
       this.deleteId = id
     },
     async deleteConfirm() {
-      await this.$fire.database.ref('chapter/' + this.deleteId).remove()
+      this.$services.chapterApi.delete(this.deleteId)
       this.deleteId = ''
       this.dialogDelete = false
       await this.loadItems()
@@ -140,37 +134,37 @@ export default {
       if (!file) return
       let reader = new FileReader()
 
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
+        this.loading = true
         let data = new Uint8Array(e.target.result)
         let workbook = XLSX.read(data, { type: 'array' })
         let first_sheet_name = workbook.SheetNames[0]
         let worksheet = workbook.Sheets[first_sheet_name]
-
-        const chapterRef = this.$fire.database.ref('chapter')
-
-        for (const [key, value] of Object.entries(worksheet)) {
-          if (key[0] === '!') continue
-          let chpater = {
-            chapterNumber: value.v.split(' ')[0],
-            bookNumber: isNaN(value.v.split(' ')[0][0])
-              ? '3'
-              : value.v.split(' ')[0][0],
-            name: value.v,
-          }
-          const oldChapter = this.chapters.find(
-            (x) => x.chapterNumber === chpater.chapterNumber
-          )
-          if (oldChapter) {
-            const oldChapterRef = this.$fire.database.ref(
-              'chapter/' + oldChapter.id
+        try {
+          for (const [key, value] of Object.entries(worksheet)) {
+            if (key[0] === '!') continue
+            let chpater = {
+              chapterNumber: value.v.split(' ')[0],
+              bookNumber: isNaN(value.v.split(' ')[0][0])
+                ? '3'
+                : value.v.split(' ')[0][0],
+              name: value.v,
+            }
+            const oldChapter = this.chapters.find(
+              (x) => x.chapterNumber === chpater.chapterNumber
             )
-            oldChapterRef.set(chpater)
-          } else {
-            const newchapterRef = chapterRef.push()
-            newchapterRef.set(chpater)
+            if (oldChapter) {
+              await this.$services.chapterApi.update(oldChapter.id, chpater)
+            } else {
+              await this.$services.chapterApi.add(chpater)
+            }
           }
+        } catch (e) {
+          console.log(e)
         }
+
         this.fileName = null
+        this.loading = false
         this.loadItems()
       }.bind(this)
       reader.readAsArrayBuffer(file)
