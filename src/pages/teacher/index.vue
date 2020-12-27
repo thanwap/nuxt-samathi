@@ -2,12 +2,25 @@
   <div>
     <h1>อาจารย์ - รายการ</h1>
     <v-card>
-      <div class="d-flex flex-row flex-nowrap justify-space-between">
-        <div class="ma-2">
+      <div class="d-flex flex-row flex-nowrap">
+        <div class="ml-2 my-2">
           <v-btn color="primary" class="mr-4" @click="goToAdd"> เพิ่ม </v-btn>
         </div>
+        <div class="my-2">
+          <v-btn color="ascent" class="mr-4" @click="downloadExample">
+            ตัวอย่างไฟล์ excel
+          </v-btn>
+        </div>
       </div>
-
+      <div>
+        <v-file-input
+          v-model="fileName"
+          clearable
+          @change="onUploadExcel"
+          accept=".xlsx"
+          label="อัพโหลดไฟล์ Excel"
+        ></v-file-input>
+      </div>
       <v-card-subtitle>
         <v-text-field
           v-model="search"
@@ -30,7 +43,7 @@
         <template v-slot:[`item.id`]="{ item }">
           <v-btn
             @click="goToEdit(item.id)"
-            class="mx-2"
+            class="ma-2"
             fab
             medium
             color="secondary"
@@ -39,7 +52,7 @@
           </v-btn>
           <v-btn
             @click="deleteItem(item.id)"
-            class="mx-2"
+            class="ma-2"
             fab
             medium
             color="red"
@@ -62,24 +75,29 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-overlay :value="loading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
 <script>
+import XLSX from 'xlsx'
 export default {
   data() {
     return {
       headers: [
+        { text: 'รูป', value: 'imageUrl', align: 'center', width: 100 },
         { text: 'ชื่อ-นามสกุล', value: 'fullName', filterable: true },
-        { text: 'เบอร์โทรศัพท์', value: 'phoneNumber' },
-        { text: 'รูป', value: 'imageUrl' },
-        { text: 'action', value: 'id' },
+        { text: 'เบอร์โทรศัพท์', value: 'phoneNumber', width: 200 },
+        { text: 'action', value: 'id', align: 'center', width: 200 },
       ],
       teachers: [],
       search: '',
       loading: false,
       dialogDelete: false,
       deleteId: '',
+      fileName: null,
     }
   },
   methods: {
@@ -87,24 +105,12 @@ export default {
       console.log('load Teachers')
       this.teachers = []
       this.loading = true
-      const itemRef = this.$fire.database.ref('teacher')
-      const itemSnapshot = await itemRef.once('value')
-      const teachers = itemSnapshot.val()
-      for (const key in teachers) {
-        this.teachers.push({
-          id: key,
-          name: teachers[key].name,
-          lastName: teachers[key].lastName,
-          fullName: teachers[key].fullName
-            ? teachers[key].fullName
-            : `${teachers[key].prefix}${teachers[key].name} ${teachers[key].lastName}`,
-          phoneNumber: teachers[key].phoneNumber,
-          prefix: teachers[key].prefix,
-          imageUrl: teachers[key].imageUrl
-            ? teachers[key].imageUrl
-            : 'https://firebasestorage.googleapis.com/v0/b/nuxt-samathi/o/images%2Fteachers%2Fteacher-mock.jpg?alt=media&token=aaa06d90-baed-4ad0-9206-0b80aeaec856',
-        })
+      try {
+        this.teachers = await this.$services.teacherApi.list()
+      } catch (e) {
+        console.log(e)
       }
+
       this.loading = false
     },
     goToAdd() {
@@ -122,13 +128,63 @@ export default {
       this.deleteId = id
     },
     async deleteConfirm() {
-      await this.$fire.database.ref('teacher/' + this.deleteId).remove()
+      await this.$services.teacherApi.delete(this.deleteId)
       this.deleteId = ''
       this.dialogDelete = false
       await this.loadItems()
     },
     closeDelete() {
       this.dialogDelete = false
+    },
+    onUploadExcel(file) {
+      if (!file) return
+      let reader = new FileReader()
+
+      reader.onload = async function (e) {
+        this.loading = true
+
+        let data = new Uint8Array(e.target.result)
+        let workbook = XLSX.read(data, { type: 'array' })
+        let first_sheet_name = workbook.SheetNames[0]
+        let worksheet = workbook.Sheets[first_sheet_name]
+        const rows = Number(worksheet['!ref'].split(':')[1].substring(1))
+
+        for (let i = 1; i <= rows; i++) {
+          let teacher = {
+            prefix: worksheet['A' + i].v,
+            name: worksheet['B' + i].v,
+            lastname: worksheet['C' + i].v,
+            fullName: `${worksheet['A' + i].v} ${worksheet['B' + i].v} ${
+              worksheet['C' + i].v
+            }`,
+            phoneNumber: worksheet['D' + i] ? worksheet['D' + i].v : '',
+            imageUrl: '',
+          }
+          const oldTeacher = this.teachers.find(
+            (x) => x.fullName === teacher.fullName
+          )
+          if (oldTeacher) {
+            await this.$services.teacherApi.update(oldTeacher.id, teacher)
+          } else {
+            await this.$services.teacherApi.add(teacher)
+          }
+        }
+        this.fileName = null
+        this.loading = false
+        this.loadItems()
+      }.bind(this)
+
+      reader.readAsArrayBuffer(file)
+    },
+    downloadExample() {
+      var file_path =
+        'https://firebasestorage.googleapis.com/v0/b/samathi-8.appspot.com/o/example%2Fteacher.xlsx?alt=media&token=cfc5eca0-2854-4958-816b-c528118f891c'
+      var a = document.createElement('A')
+      a.href = file_path
+      a.download = file_path.substr(file_path.lastIndexOf('/') + 1)
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     },
   },
   async mounted() {

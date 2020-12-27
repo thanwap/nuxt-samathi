@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>บท - แก้ไข</h1>
+    <h1>หัวข้อ - แก้ไข</h1>
     <chapter-form
       @submit="submit"
       v-if="chapter"
@@ -8,7 +8,7 @@
     ></chapter-form>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
-        <v-card-title class="headline"> บท </v-card-title>
+        <v-card-title class="headline"> หัวข้อ </v-card-title>
         <v-card-text>อัพโหลดสำเร็จ</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

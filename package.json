@@ -23,7 +23,8 @@
     "@nuxtjs/firebase": "^7.1.1",
     "core-js": "^3.6.5",
     "firebase": "^8.1.2",
-    "nuxt": "^2.14.6"
+    "nuxt": "^2.14.6",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.2",

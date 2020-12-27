@@ -22,7 +22,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: ['~/plugins/api/api-plugin.js'],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -45,13 +45,13 @@ export default {
 
   firebase: {
     config: {
-      apiKey: 'AIzaSyCuzWxOqm73VTFRNrV0hBiM1PeZWs0GdxE',
-      authDomain: 'nuxt-samathi.firebaseapp.com',
-      databaseURL: 'https://nuxt-samathi-default-rtdb.firebaseio.com',
-      projectId: 'nuxt-samathi',
-      storageBucket: 'nuxt-samathi',
-      messagingSenderId: '854321728192',
-      appId: '1:854321728192:web:98ea2ee904abc1d3d0bb25',
+      apiKey: 'AIzaSyBim7qhvOBsGHbp4lGSbWHy87PK6TCNSug',
+      authDomain: 'samathi-8.firebaseapp.com',
+      databaseURL: 'https://samathi-8-default-rtdb.firebaseio.com',
+      projectId: 'samathi-8',
+      storageBucket: 'samathi-8.appspot.com',
+      messagingSenderId: '261199648778',
+      appId: '1:261199648778:web:01e851fad5ec7b756527f3',
     },
     services: {
       database: true,

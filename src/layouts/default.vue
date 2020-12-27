@@ -18,11 +18,31 @@
     <v-footer :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
+
+    <v-dialog v-model="dialogError.isShow" persistent max-width="290">
+      <v-card>
+        <v-card-title class="headline">
+          {{ dialogError.errorTitle }}
+        </v-card-title>
+        <v-card-text>{{ dialogError.errorMessage }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="closeDialogError">
+            ตกลง
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 export default {
+  provide() {
+    return {
+      showDialogError: this.showDialogError,
+    }
+  },
   data() {
     return {
       clipped: false,
@@ -34,7 +54,7 @@ export default {
           to: '/',
         },
         {
-          title: 'บท',
+          title: 'หัวข้อ',
           to: '/chapter',
         },
         {
@@ -54,7 +74,22 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Vuetify.js',
+      dialogError: {
+        isShow: false,
+        errorTitle: '',
+        errorMessage: '',
+      },
     }
+  },
+  methods: {
+    showDialogError(message, title) {
+      this.dialogError.isShow = true
+      this.dialogError.errorTitle = title || 'เกิดข้อผิดพลาด'
+      this.dialogError.errorMessage = message
+    },
+    closeDialogError() {
+      this.dialogError.isShow = false
+    },
   },
 }
 </script>

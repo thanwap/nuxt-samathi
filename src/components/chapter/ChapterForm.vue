@@ -3,7 +3,7 @@
     <v-form ref="form" lazy-validation>
       <v-text-field
         v-model="chapter.chapterNumber"
-        label="บท"
+        label="บทที่"
         required
         :rules="chapterNumberRules"
       ></v-text-field>
@@ -44,7 +44,7 @@ export default {
   data() {
     return {
       valid: true,
-      chapterNumberRules: [(v) => !!v || 'กรุณากรอก บท'],
+      chapterNumberRules: [(v) => !!v || 'กรุณากรอก บทที่'],
       nameRules: [(v) => !!v || 'กรุณากรอก ชื่อ'],
       bookNumberRules: [(v) => !!v || 'กรุณากรอก เลชที่เล่ม'],
     }

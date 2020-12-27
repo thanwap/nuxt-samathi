@@ -69,7 +69,7 @@ export default {
       if (!file) return
       this.file = file
       var base64 = await this.toBase64(file)
-      this.image = base64
+      this.teacher.imageUrl = base64
     },
     toBase64(file) {
       return new Promise((resolve, reject) => {

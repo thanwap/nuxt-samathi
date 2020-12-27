@@ -13,7 +13,6 @@ const nuxt = new Nuxt(config)
 let isReady = false
 const readyPromise = nuxt
   .ready()
-  // eslint-disable-next-line promise/always-return
   .then(() => {
     isReady = true
   })

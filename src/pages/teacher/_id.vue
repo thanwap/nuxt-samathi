@@ -43,26 +43,8 @@ export default {
   methods: {
     async submit(teacher, fileImage) {
       this.loading = true
-      const teacherRef = this.$fire.database.ref('teacher/' + this.id)
       try {
-        let imageUrl = teacher.imageUrl
-
-        if (fileImage) {
-          const imageRef = this.$fire.storage
-            .ref()
-            .child(`images/teachers/${this.id}/${fileImage.name}`)
-          await imageRef.put(fileImage)
-          imageUrl = await imageRef.getDownloadURL()
-        }
-
-        await teacherRef.update({
-          prefix: teacher.prefix,
-          name: teacher.name,
-          lastName: teacher.lastName,
-          fullName: teacher.fullName,
-          phoneNumber: teacher.phoneNumber,
-          imageUrl: imageUrl,
-        })
+        await this.$services.teacherApi.update(this.id, teacher, fileImage)
 
         this.loading = false
         this.dialog = true

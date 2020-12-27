@@ -40,18 +40,8 @@ export default {
   methods: {
     async submit(teacher, fileImage) {
       this.loading = true
-      const teacherRef = this.$fire.database.ref('teacher').push()
       try {
-        await teacherRef.set(teacher)
-
-        if (fileImage) {
-          const imageRef = this.$fire.storage
-            .ref()
-            .child(`images/teachers/${teacherRef.key}/${fileImage.name}`)
-          await imageRef.put(fileImage)
-          const imageUrl = await imageRef.getDownloadURL()
-          await teacherRef.set({ ...teacher, imageUrl: imageUrl })
-        }
+        await this.$services.teacherApi.add(teacher, fileImage)
 
         this.loading = false
         this.dialog = true
