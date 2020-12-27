@@ -2,6 +2,27 @@
   <div>
     <v-form ref="form" lazy-validation>
       <v-date-picker v-model="schedule.date"></v-date-picker>
+      <div>
+        <h2>เวลา</h2>
+        <v-row align="center">
+          <v-col style="width: 350px; flex: 0 1 auto">
+            <h2>เริ่ม:</h2>
+            <v-time-picker
+              format="24hr"
+              v-model="schedule.start"
+              :max="schedule.end"
+            ></v-time-picker>
+          </v-col>
+          <v-col style="width: 350px; flex: 0 1 auto">
+            <h2>จบ:</h2>
+            <v-time-picker
+              format="24hr"
+              v-model="schedule.end"
+              :min="schedule.start"
+            ></v-time-picker>
+          </v-col>
+        </v-row>
+      </div>
       <v-select
         v-model="schedule.chapterId"
         :items="chapters"
@@ -38,6 +59,8 @@ export default {
           teacherId: '',
           chapterId: '',
           date: new Date().toISOString().substr(0, 10),
+          start: '18:00',
+          end: '18:30',
         }
       },
     },
@@ -66,6 +89,8 @@ export default {
           chapterId: this.schedule.chapterId,
           teacherId: this.schedule.teacherId,
           date: this.schedule.date,
+          start: this.schedule.start,
+          end: this.schedule.end,
         },
         this.file
       )

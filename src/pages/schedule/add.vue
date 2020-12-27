@@ -44,15 +44,14 @@ export default {
     async submit(schedule) {
       this.loading = true
 
-      if (await this.isCreatedDate(schedule)) {
+      if (await this.$services.scheduleApi.isHaveCreatedDate(schedule)) {
         this.loading = false
         this.showDialogError(`มีวันที่ ${schedule.date} อยู่ในระบบแล้ว`)
         return
       }
 
-      const scheduleRef = this.$fire.database.ref('schedule').push()
       try {
-        await scheduleRef.set(schedule)
+        this.$services.scheduleApi.add(schedule)
 
         this.loading = false
         this.dialog = true
@@ -61,51 +60,17 @@ export default {
         console.log(e)
       }
     },
-    async isCreatedDate(schedule) {
-      const scheduleRef = this.$fire.database.ref('schedule')
-      console.log(scheduleRef)
-      const scheduleSnapshot = await scheduleRef
-        .orderByChild('date')
-        .equalTo(schedule.date)
-        .once('value')
-
-      return scheduleSnapshot.val() ? true : false
-    },
-    async loadTeachers() {
-      this.teachers = []
-      const itemRef = this.$fire.database.ref('teacher')
-      const itemSnapshot = await itemRef.once('value')
-      const items = itemSnapshot.val()
-      for (const key in items) {
-        this.teachers.push({
-          id: key,
-          fullName: items[key].fullName,
-          imageUrl: items[key].imageUrl,
-        })
-      }
-    },
-    async loadChapters() {
-      this.chapters = []
-      const itemRef = this.$fire.database.ref('chapter')
-      const itemSnapshot = await itemRef.once('value')
-      const items = itemSnapshot.val()
-      for (const key in items) {
-        this.chapters.push({
-          id: key,
-          chapterNumber: items[key].chapterNumber,
-          name: items[key].name,
-          bookNumber: items[key].bookNumber,
-        })
-      }
-    },
   },
   async mounted() {
     this.loading = true
-    await this.loadTeachers()
-    await this.loadChapters()
+
+    this.teachers = []
+    this.teachers = await this.$services.teacherApi.list()
+
+    this.chapters = []
+    this.chapters = await this.$services.chapterApi.list()
+
     this.loading = false
-    console.log(this.teachers)
-    console.log(this.chapters)
   },
 }
 </script>

@@ -23,6 +23,12 @@ export default {
         }
         return result
       },
+      async listWithKey() {
+        const teacherRef = app.$fire.database.ref('teacher')
+        const teacherSnapshot = await teacherRef.once('value')
+        const teachers = teacherSnapshot.val()
+        return teachers
+      },
       async add(teacher, fileImage) {
         const teacherRef = app.$fire.database.ref('teacher').push()
         try {
@@ -36,6 +42,8 @@ export default {
             const imageUrl = await imageRef.getDownloadURL()
             await teacherRef.set({ ...teacher, imageUrl: imageUrl })
           }
+
+          return teacherRef.key
         } catch (e) {
           throw e
         }

@@ -47,48 +47,22 @@ export default {
     },
   },
   methods: {
-    async loadTeachers() {
-      this.teachers = []
-      const itemRef = this.$fire.database.ref('teacher')
-      const itemSnapshot = await itemRef.once('value')
-      const items = itemSnapshot.val()
-      for (const key in items) {
-        this.teachers.push({
-          id: key,
-          fullName: items[key].fullName,
-          imageUrl: items[key].imageUrl,
-        })
-      }
-    },
-    async loadChapters() {
-      this.chapters = []
-      const itemRef = this.$fire.database.ref('chapter')
-      const itemSnapshot = await itemRef.once('value')
-      const items = itemSnapshot.val()
-      for (const key in items) {
-        this.chapters.push({
-          id: key,
-          chapterNumber: items[key].chapterNumber,
-          name: items[key].name,
-          bookNumber: items[key].bookNumber,
-        })
-      }
-    },
     async submit(schedule) {
       this.loading = true
 
-      if (await this.isCreatedDate(schedule)) {
+      const isHaveToCheck = schedule.date !== this.firstSchedule.date
+
+      if (
+        isHaveToCheck &&
+        (await this.$services.scheduleApi.isHaveCreatedDate(schedule))
+      ) {
         this.loading = false
         this.showDialogError(`มีวันที่ ${schedule.date} อยู่ในระบบแล้ว`)
         return
       }
 
-      const scheduleRef = this.$fire.database.ref('schedule/' + this.id)
       try {
-        console.log(schedule)
-        await scheduleRef.update({
-          ...schedule,
-        })
+        this.$services.scheduleApi.update(this.id, schedule)
 
         this.loading = false
         this.dialog = true
@@ -96,19 +70,6 @@ export default {
         this.loading = false
         console.log(e)
       }
-    },
-    async isCreatedDate(schedule) {
-      if (schedule.date === this.firstSchedule.date) {
-        return false
-      }
-
-      const scheduleRef = this.$fire.database.ref('schedule')
-      const scheduleSnapshot = await scheduleRef
-        .orderByChild('date')
-        .equalTo(schedule.date)
-        .once('value')
-
-      return scheduleSnapshot.val() ? true : false
     },
     clear() {
       this.$refs.form.reset()
@@ -122,13 +83,15 @@ export default {
   },
   async mounted() {
     this.loading = true
-    await this.loadTeachers()
-    await this.loadChapters()
+
+    this.teachers = []
+    this.teachers = await this.$services.teacherApi.list()
+
+    this.chapters = []
+    this.chapters = await this.$services.chapterApi.list()
+
     if (this.id) {
-      const scheduleSnapshot = await this.$fire.database
-        .ref('schedule/' + this.id)
-        .once('value')
-      const schedule = scheduleSnapshot.val()
+      const schedule = await this.$services.scheduleApi.get(this.id)
 
       if (!schedule) {
         this.$router.push({ path: '/schedule/add' })

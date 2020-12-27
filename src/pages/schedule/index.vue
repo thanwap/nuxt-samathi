@@ -86,6 +86,8 @@ export default {
     return {
       headers: [
         { text: 'วันที่', value: 'date', width: 150, filterable: true },
+        { text: 'เริ่ม', value: 'start', width: 150, filterable: true },
+        { text: 'จบ', value: 'end', width: 150, filterable: true },
         { text: 'หัวข้อ', value: 'chapter.name' },
         { text: 'ผู้บรรยาย', value: 'teacher.name' },
         { text: 'รูป', value: 'teacher.imageUrl', align: 'center', width: 150 },
@@ -106,16 +108,12 @@ export default {
       this.schedules = []
       this.loading = true
       const scheduleRef = this.$fire.database.ref('schedule')
-      const chaptersRef = this.$fire.database.ref('chapter')
-      const teacherRef = this.$fire.database.ref('teacher')
 
       const scheduleSnapshot = await scheduleRef.once('value')
-      const chapterSnapshot = await chaptersRef.once('value')
-      const teacherSnapshot = await teacherRef.once('value')
 
-      const schedules = scheduleSnapshot.val()
-      const chapters = chapterSnapshot.val()
-      const teachers = teacherSnapshot.val()
+      const schedules = await this.$services.scheduleApi.listWithKey()
+      const chapters = await this.$services.chapterApi.listWithKey()
+      const teachers = await this.$services.teacherApi.listWithKey()
 
       for (const key in chapters) {
         this.chapterDic[chapters[key].name] = chapters[key]
@@ -127,13 +125,12 @@ export default {
         this.teacherDic[teachers[key].fullName].id = key
       }
 
-      console.log('chapterDic', this.chapterDic)
-      console.log('teacherDic', this.teacherDic)
-
       for (const key in schedules) {
         const scheduleItem = {
           id: key,
           date: schedules[key].date,
+          start: schedules[key].start,
+          end: schedules[key].end,
           chapter: chapters[schedules[key].chapterId],
           teacher: teachers[schedules[key].teacherId],
         }
@@ -159,7 +156,7 @@ export default {
       this.dialogDelete = false
     },
     async deleteConfirm() {
-      await this.$fire.database.ref('schedule/' + this.deleteId).remove()
+      this.$service.scheduleApi.delete(this.deleteId)
       this.deleteId = ''
       this.dialogDelete = false
       await this.loadItems()
@@ -168,36 +165,58 @@ export default {
       if (!file) return
       let reader = new FileReader()
 
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         let data = new Uint8Array(e.target.result)
         let workbook = XLSX.read(data, { type: 'array' })
         let first_sheet_name = workbook.SheetNames[0]
         let worksheet = workbook.Sheets[first_sheet_name]
         const rows = Number(worksheet['!ref'].split(':')[1].substring(1))
         console.log(worksheet)
-        console.log('rows', rows)
 
         for (let i = 4; i <= rows; i++) {
           if (!worksheet['B' + i]) break
 
-          console.log(worksheet['B' + i].w)
           const chapterName = worksheet['D' + i]
             ? worksheet['D' + i].w.trim()
             : ''
-          console.log('chapterName', chapterName)
           if (!this.chapterDic[chapterName]) {
-            // add chapter
+            let time = worksheet['E' + i] ? worksheet['E' + i].v : 0
+
+            let chapter = {
+              chapterNumber: chapterName.split(' ')[0],
+              bookNumber: isNaN(chapterName.split(' ')[0][0])
+                ? '3'
+                : chapterName.split(' ')[0][0],
+              name: chapterName,
+              time: time,
+            }
+
+            const chapterId = await this.$services.chapterApi.add(chapter)
+            chapter.id = chapterId
+            this.chapterDic[chapterName] = chapter
           }
-          const fullName = `${
-            worksheet['F' + i] ? worksheet['F' + i].w.trim() : ''
-          } ${worksheet['G' + i] ? worksheet['G' + i].w.trim() : ''} ${
-            worksheet['H' + i] ? worksheet['H' + i].w.trim() : ''
-          }`
 
-          console.log('fullName', fullName)
+          const prefix = worksheet['F' + i] ? worksheet['F' + i].w.trim() : ''
+          const name = worksheet['G' + i] ? worksheet['G' + i].w.trim() : ''
+          const lastName = worksheet['H' + i] ? worksheet['H' + i].w.trim() : ''
+          const phoneNumber = worksheet['I' + i]
+            ? worksheet['I' + i].w.trim()
+            : ''
 
-          if (!this.teacherDic[fullName]) {
-            // add chapter
+          const fullName = `${prefix} ${name} ${lastName}`.trim()
+
+          if (fullName && !this.teacherDic[fullName]) {
+            let teacher = {
+              prefix: prefix,
+              name: name,
+              lastname: lastName,
+              fullName: fullName,
+              phoneNumber: phoneNumber,
+              imageUrl: '',
+            }
+            let teacherId = await this.$services.teacherApi.add(teacher)
+            teacher.id = teacherId
+            this.teacherDic[fullName] = teacher
           }
 
           let schedule = {
@@ -210,22 +229,9 @@ export default {
               : '',
           }
 
-          console.log(schedule)
+          console.log('schedule', schedule)
         }
 
-        // for (let i = 1; i <= rows; i++) {
-        //   // let teacher = {
-        //   //   prefix: worksheet['A' + i].v,
-        //   //   name: worksheet['B' + i].v,
-        //   //   lastname: worksheet['C' + i].v,
-        //   //   fullName: `${worksheet['A' + i].v} ${worksheet['B' + i].v} ${
-        //   //     worksheet['C' + i].v
-        //   //   }`,
-        //   //   phoneNumber: worksheet['D' + i] ? worksheet['D' + i].v : '',
-        //   //   imageUrl: '',
-        //   // }
-
-        // }
         this.fileName = null
         this.loadItems()
       }.bind(this)
