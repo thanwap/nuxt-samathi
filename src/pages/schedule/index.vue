@@ -38,7 +38,16 @@
         :search="search"
       >
         <template v-slot:[`item.teacher.imageUrl`]="{ item }">
-          <v-img max-width="100" :src="item.teacher.imageUrl"></v-img>
+          <v-img
+            max-width="100"
+            :src="
+              item.teacher
+                ? item.teacher.imageUrl
+                  ? item.teacher.imageUrl
+                  : 'https://firebasestorage.googleapis.com/v0/b/nuxt-samathi.appspot.com/o/images%2Fteacher-mock.jpg?alt=media&token=6ae7ae12-f7db-4c43-8b0c-97e74909bcb3'
+                : 'https://firebasestorage.googleapis.com/v0/b/nuxt-samathi.appspot.com/o/images%2Fteacher-mock.jpg?alt=media&token=6ae7ae12-f7db-4c43-8b0c-97e74909bcb3'
+            "
+          ></v-img>
         </template>
         <template v-slot:[`item.id`]="{ item }">
           <v-btn
@@ -75,6 +84,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-overlay :value="loading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
@@ -89,11 +101,12 @@ export default {
         { text: 'เริ่ม', value: 'start', width: 150, filterable: true },
         { text: 'จบ', value: 'end', width: 150, filterable: true },
         { text: 'หัวข้อ', value: 'chapter.name' },
-        { text: 'ผู้บรรยาย', value: 'teacher.name' },
+        { text: 'ผู้บรรยาย', value: 'teacher.fullName' },
         { text: 'รูป', value: 'teacher.imageUrl', align: 'center', width: 150 },
         { text: 'action', value: 'id', align: 'center', width: 200 },
       ],
       schedules: [],
+      scheduleDic: {},
       chapterDic: {},
       teacherDic: {},
       search: '',
@@ -114,6 +127,11 @@ export default {
       const schedules = await this.$services.scheduleApi.listWithKey()
       const chapters = await this.$services.chapterApi.listWithKey()
       const teachers = await this.$services.teacherApi.listWithKey()
+
+      for (const key in schedules) {
+        this.scheduleDic[schedules[key].date] = schedules[key]
+        this.scheduleDic[schedules[key].date].id = key
+      }
 
       for (const key in chapters) {
         this.chapterDic[chapters[key].name] = chapters[key]
@@ -156,7 +174,7 @@ export default {
       this.dialogDelete = false
     },
     async deleteConfirm() {
-      this.$service.scheduleApi.delete(this.deleteId)
+      this.$services.scheduleApi.delete(this.deleteId)
       this.deleteId = ''
       this.dialogDelete = false
       await this.loadItems()
@@ -166,6 +184,7 @@ export default {
       let reader = new FileReader()
 
       reader.onload = async function (e) {
+        this.loading = true
         let data = new Uint8Array(e.target.result)
         let workbook = XLSX.read(data, { type: 'array' })
         let first_sheet_name = workbook.SheetNames[0]
@@ -219,8 +238,26 @@ export default {
             this.teacherDic[fullName] = teacher
           }
 
+          const dateString = worksheet['B' + i] ? worksheet['B' + i].w : null
+
+          const startEnd = worksheet['C' + i] ? worksheet['C' + i].w : null
+          let start = null
+          let end = null
+
+          if (startEnd) {
+            const times = startEnd.slice(0, startEnd.length - 2).split('-')
+            start = times.length > 0 ? times[0].replace('.', ':').trim() : null
+            end = times.length > 1 ? times[1].replace('.', ':').trim() : null
+          }
+
+          if (new Date(dateString).toString() === 'Invalid Date') {
+            continue
+          }
+
           let schedule = {
-            date: worksheet['B' + i].w,
+            date: dateString ? this.formatDate(new Date(dateString)) : null,
+            start: start,
+            end: end,
             chapterId: this.chapterDic[chapterName]
               ? this.chapterDic[chapterName].id
               : '',
@@ -229,9 +266,18 @@ export default {
               : '',
           }
 
+          if (this.scheduleDic[schedule.date]) {
+            this.$services.scheduleApi.update(
+              this.scheduleDic[schedule.date].id,
+              schedule
+            )
+          } else {
+            this.$services.scheduleApi.add(schedule)
+          }
+
           console.log('schedule', schedule)
         }
-
+        this.loading = false
         this.fileName = null
         this.loadItems()
       }.bind(this)
@@ -246,6 +292,15 @@ export default {
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
+    },
+    formatDate(date) {
+      console.log(date)
+      if (!date) return ''
+
+      return `${date.getFullYear()}-${(date.getMonth() + 1 + '').padStart(
+        2,
+        '0'
+      )}-${(date.getDate() + '').padStart(2, '0')}`
     },
   },
   async mounted() {

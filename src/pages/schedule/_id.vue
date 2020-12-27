@@ -98,6 +98,7 @@ export default {
       }
       this.firstSchedule = { ...schedule }
       this.schedule = schedule
+      console.log(schedule, 'schedule')
     } else {
       this.$router.push({ path: '/schedule/add' })
     }
