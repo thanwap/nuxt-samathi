@@ -37,6 +37,38 @@ export default {
 
         return scheduleSnapshot.val() ? true : false
       },
+      async getScheduleByDate(date = new Date()) {
+        const scheduleRef = app.$fire.database.ref('schedule')
+
+        const scheduleSnapshot = await scheduleRef
+          .orderByChild('date')
+          .equalTo(date.toLocaleDateString('en-CA'))
+          .once('value')
+        const schedule = scheduleSnapshot.val()
+
+        if (schedule) {
+          let result = {
+            ...Object.values(schedule)[0],
+            scheduleId: Object.keys[0],
+          }
+          console.log(result.teacherId)
+          const teacherSnashot = await app.$fire.database
+            .ref('teacher/' + result.teacherId)
+            .once('value')
+          const teacher = teacherSnashot.val()
+          const chapterSnashot = await app.$fire.database
+            .ref('chapter/' + result.chapterId)
+            .once('value')
+          const chapter = chapterSnashot.val()
+
+          result.teacher = teacher
+          result.chapter = chapter
+
+          return result
+        }
+
+        return null
+      },
     }
   },
 }

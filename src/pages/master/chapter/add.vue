@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import ChapterForm from '../../components/chapter/ChapterForm'
+import ChapterForm from '../../../components/chapter/ChapterForm'
 export default {
   components: {
     'chapter-form': ChapterForm,

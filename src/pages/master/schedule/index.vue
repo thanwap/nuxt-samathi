@@ -120,9 +120,6 @@ export default {
     async loadItems() {
       this.schedules = []
       this.loading = true
-      const scheduleRef = this.$fire.database.ref('schedule')
-
-      const scheduleSnapshot = await scheduleRef.once('value')
 
       const schedules = await this.$services.scheduleApi.listWithKey()
       const chapters = await this.$services.chapterApi.listWithKey()

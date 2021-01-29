@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import ScheduleForm from '../../components/schedule/ScheduleForm'
+import ScheduleForm from '../../../components/schedule/ScheduleForm'
 export default {
   inject: ['showDialogError'],
   components: {

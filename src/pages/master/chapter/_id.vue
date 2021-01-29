@@ -1,14 +1,14 @@
 <template>
   <div>
-    <h1>อาจารย์ - แก้ไข้</h1>
-    <teacher-form
+    <h1>หัวข้อ - แก้ไข</h1>
+    <chapter-form
       @submit="submit"
-      v-if="teacher"
-      :teacher="teacher"
-    ></teacher-form>
+      v-if="chapter"
+      :chapter="chapter"
+    ></chapter-form>
     <v-dialog v-model="dialog" persistent max-width="290">
       <v-card>
-        <v-card-title class="headline"> อาจารย์ </v-card-title>
+        <v-card-title class="headline"> หัวข้อ </v-card-title>
         <v-card-text>อัพโหลดสำเร็จ</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -23,14 +23,14 @@
 </template>
 
 <script>
-import TeacherForm from '../../components/teacher/TeacherForm'
+import ChapterForm from '../../../components/chapter/ChapterForm'
 export default {
   components: {
-    'teacher-form': TeacherForm,
+    'chapter-form': ChapterForm,
   },
   data() {
     return {
-      teacher: null,
+      chapter: null,
       loading: false,
       dialog: false,
     }
@@ -41,10 +41,10 @@ export default {
     },
   },
   methods: {
-    async submit(teacher, fileImage) {
+    async submit(chapter) {
       this.loading = true
       try {
-        await this.$services.teacherApi.update(this.id, teacher, fileImage)
+        await this.$services.chapterApi.update(this.id, chapter)
 
         this.loading = false
         this.dialog = true
@@ -54,30 +54,28 @@ export default {
       }
     },
     clear() {
-      this.image = ''
-      this.file = null
       this.$refs.form.reset()
     },
     closeDialog() {
       this.dialog = false
       this.$router.push({
-        path: '/teacher',
+        path: '/chapter',
       })
     },
   },
   async mounted() {
     if (this.id) {
-      const teacherSnapshot = await this.$fire.database
-        .ref('teacher/' + this.id)
+      const chapterSnapshot = await this.$fire.database
+        .ref('chapter/' + this.id)
         .once('value')
-      const teacher = teacherSnapshot.val()
+      const chapter = chapterSnapshot.val()
 
-      if (!teacher) {
-        this.$router.push({ path: '/teacher/add' })
+      if (!chapter) {
+        this.$router.push({ path: '/chapter/add' })
       }
-      this.teacher = teacher
+      this.chapter = chapter
     } else {
-      this.$router.push({ path: '/teacher/add' })
+      this.$router.push({ path: '/chapter/add' })
     }
   },
 }

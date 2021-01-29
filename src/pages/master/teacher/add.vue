@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import TeacherForm from '../../components/teacher/TeacherForm'
+import TeacherForm from '../../../components/teacher/TeacherForm'
 export default {
   components: {
     'teacher-form': TeacherForm,

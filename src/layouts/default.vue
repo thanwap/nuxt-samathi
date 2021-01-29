@@ -55,15 +55,15 @@ export default {
         },
         {
           title: 'หัวข้อ',
-          to: '/chapter',
+          to: '/master/chapter',
         },
         {
           title: 'อาจารย์',
-          to: '/teacher',
+          to: '/master/teacher',
         },
         {
           title: 'ตารางสอน',
-          to: '/schedule',
+          to: '/master/schedule',
         },
         {
           title: 'Inspire',

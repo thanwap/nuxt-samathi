@@ -19,10 +19,16 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: [],
+  css: ['~layouts/global.css'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: ['~/plugins/api/api-plugin.js'],
+  plugins: [
+    '~/plugins/api/api-plugin.js',
+    {
+      src: '~plugins/html2canvas.js',
+      ssr: false,
+    },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
