@@ -65,10 +65,6 @@ export default {
           title: 'ตารางสอน',
           to: '/master/schedule',
         },
-        {
-          title: 'Inspire',
-          to: '/inspire',
-        },
       ],
       miniVariant: false,
       right: true,
