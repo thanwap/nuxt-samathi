@@ -155,12 +155,12 @@ export default {
     },
     goToAdd() {
       this.$router.push({
-        path: '/schedule/add',
+        path: '/master/schedule/add',
       })
     },
     goToEdit(id) {
       this.$router.push({
-        path: '/schedule/' + id,
+        path: '/master/schedule/' + id,
       })
     },
     deleteSchedule(id) {

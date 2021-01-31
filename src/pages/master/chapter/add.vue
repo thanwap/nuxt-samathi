@@ -51,7 +51,7 @@ export default {
     },
     goToChapterList() {
       this.$router.push({
-        path: '/chapter',
+        path: '/master/chapter',
       })
     },
   },

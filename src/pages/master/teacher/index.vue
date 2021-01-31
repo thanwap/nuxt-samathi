@@ -115,12 +115,12 @@ export default {
     },
     goToAdd() {
       this.$router.push({
-        path: '/teacher/add',
+        path: '/master/teacher/add',
       })
     },
     goToEdit(id) {
       this.$router.push({
-        path: '/teacher/' + id,
+        path: '/master/teacher/' + id,
       })
     },
     deleteItem(id) {

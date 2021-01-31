@@ -38,7 +38,7 @@ export default {
   methods: {
     goToScheduleList() {
       this.$router.push({
-        path: '/schedule',
+        path: '/master/schedule',
       })
     },
     async submit(schedule) {

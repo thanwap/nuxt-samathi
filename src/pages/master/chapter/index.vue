@@ -110,12 +110,12 @@ export default {
     },
     goToAdd() {
       this.$router.push({
-        path: '/chapter/add',
+        path: '/master/chapter/add',
       })
     },
     goToEdit(id) {
       this.$router.push({
-        path: '/chapter/' + id,
+        path: '/master/chapter/' + id,
       })
     },
     deleteItem(id) {

@@ -52,7 +52,7 @@ export default {
     },
     goToTeacherList() {
       this.$router.push({
-        path: '/teacher',
+        path: '/master/teacher',
       })
     },
   },

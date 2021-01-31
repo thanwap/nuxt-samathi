@@ -61,7 +61,7 @@ export default {
     closeDialog() {
       this.dialog = false
       this.$router.push({
-        path: '/teacher',
+        path: '/master/teacher',
       })
     },
   },
@@ -73,11 +73,11 @@ export default {
       const teacher = teacherSnapshot.val()
 
       if (!teacher) {
-        this.$router.push({ path: '/teacher/add' })
+        this.$router.push({ path: '/master/teacher/add' })
       }
       this.teacher = teacher
     } else {
-      this.$router.push({ path: '/teacher/add' })
+      this.$router.push({ path: '/master/teacher/add' })
     }
   },
 }

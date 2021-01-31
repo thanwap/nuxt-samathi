@@ -77,7 +77,7 @@ export default {
     closeDialog() {
       this.dialog = false
       this.$router.push({
-        path: '/schedule',
+        path: '/master/schedule',
       })
     },
   },
@@ -94,13 +94,13 @@ export default {
       const schedule = await this.$services.scheduleApi.get(this.id)
 
       if (!schedule) {
-        this.$router.push({ path: '/schedule/add' })
+        this.$router.push({ path: '/master/schedule/add' })
       }
       this.firstSchedule = { ...schedule }
       this.schedule = schedule
       console.log(schedule, 'schedule')
     } else {
-      this.$router.push({ path: '/schedule/add' })
+      this.$router.push({ path: '/master/schedule/add' })
     }
     this.loading = false
   },

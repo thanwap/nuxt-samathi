@@ -24,6 +24,7 @@ export default {
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     '~/plugins/api/api-plugin.js',
+    '~/plugins/utils.js',
     {
       src: '~plugins/html2canvas.js',
       ssr: false,

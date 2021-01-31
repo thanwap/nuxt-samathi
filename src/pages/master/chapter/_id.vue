@@ -59,7 +59,7 @@ export default {
     closeDialog() {
       this.dialog = false
       this.$router.push({
-        path: '/chapter',
+        path: '/master/chapter',
       })
     },
   },
@@ -71,11 +71,11 @@ export default {
       const chapter = chapterSnapshot.val()
 
       if (!chapter) {
-        this.$router.push({ path: '/chapter/add' })
+        this.$router.push({ path: '/master/chapter/add' })
       }
       this.chapter = chapter
     } else {
-      this.$router.push({ path: '/chapter/add' })
+      this.$router.push({ path: '/master/chapter/add' })
     }
   },
 }
